@@ -1,66 +1,60 @@
+// Variables
+var saveBtn = $(".saveBtn");
+var currentHour = moment().format("HH"); // Variable for current hour 
+var currentHourInt = parseInt(currentHour); // Parse so hours return as integers
+
+// Setting data attributes for each hour input element then the function below can assign color to each for the current hour
+$("#9Row").attr("data-time", moment("9:00 am", "h:mm a").format("HH"));
+$("#10Row").attr("data-time", moment("10:00 am", "hh:mm a").format("HH"));
+$("#11Row").attr("data-time", moment("11:00 am", "hh:mm a").format("HH"));
+$("#12Row").attr("data-time", moment("12:00 pm", "hh:mm a").format("HH"));
+$("#1Row").attr("data-time", moment("1:00 pm", "h:mm a").format("HH"));
+$("#2Row").attr("data-time", moment("2:00 pm", "h:mm a").format("HH"));
+$("#3Row").attr("data-time", moment("3:00 pm", "h:mm a").format("HH"));
+$("#4Row").attr("data-time", moment("4:00 pm", "h:mm a").format("HH"));
+$("#5Row").attr("data-time", moment("5:00 pm", "h:mm a").format("HH"));
+
+//start jQuery 
 $(document).ready(function () {
-    //display current day & time.
-   var span = document.getElementById('currentDay');
+    // Function to store inputted data 
+    renderPlans();
+// Show Date and Time in Header 
+$('#currentDay').append();
 
-   function time() {
-     var d = moment().format('MMMM Do YYYY, h:mm:ss a');
-     span.textContent = d 
-   }
-   setInterval(time, 1000);
+function addDate() { 
+    $("#currentDay").html(moment().format('MMMM Do YYYY, h:mm a'));
 
-    $(".saveBtn").on("click", function () {
-     
-        console.log(this);
-        var text = $(this).siblings(".task").val();
-        var time = $(this).parent().attr("id");
+} setInterval(addDate, 1000);
 
-        localStorage.setItem(time, text);
-        window.alert('Your task has been saved!');
-        console.log('The button has been clicked!');
-    })
-    //We need to load the data from each storage to display it correctly
-    $("#hour7 .task").val(localStorage.getItem("hour7"));
-    $("#hour8 .task").val(localStorage.getItem("hour8"));
-    $("#hour9 .task").val(localStorage.getItem("hour9"));
-    $("#hour10 .task").val(localStorage.getItem("hour10"));
-    $("#hour11 .task").val(localStorage.getItem("hour11"));
-    $("#hour12 .task").val(localStorage.getItem("hour12"));
-    $("#hour13 .task").val(localStorage.getItem("hour13"));
-    $("#hour14 .task").val(localStorage.getItem("hour14"));
-    $("#hour15 .task").val(localStorage.getItem("hour15"));
-    $("#hour16 .task").val(localStorage.getItem("hour16"));
-    $("#hour17 .task").val(localStorage.getItem("hour17"));
-    $("#hour18 .task").val(localStorage.getItem("hour18"));
-    $("#hour19 .task").val(localStorage.getItem("hour19"));
+// Change color in each row by adding in am attribute (above) for each input line to reflect the current hour 
+for (var i = 0; i <= 12; i++) {  
 
+    var inputHour = $("#" + i + "Row").attr("data-time"); // Variable for the hour of the row 
+    var inputHourInt = parseInt(inputHour); // Parse it so that hour returns as an integer
 
-    // Check which hour it is and Colour code it accordingly
-    function hourTracker() {
-        //Get the current number of hours
-        var currentHour = moment().hour();
-
-        // loop over time blocks
-        $(".time-block").each(function () {
-            var blockHour = parseInt($(this).attr("id").split("hour")[1]);
-            
-            //check if we've moved past this time
-            if (blockHour < currentHour) {
-                $(this).addClass("past");
-                $(this).removeClass("future");
-                $(this).removeClass("present");
-            }
-            else if (blockHour === currentHour) {
-                $(this).removeClass("past");
-                $(this).addClass("present");
-                $(this).removeClass("future");
-            }
-            else {
-                $(this).removeClass("present");
-                $(this).removeClass("past");
-                $(this).addClass("future");
-            }
-        })
+    if (currentHourInt === inputHourInt) {
+        $("#" + i + "Row").addClass("present"); // Applies red color if within the present hour 
     }
-    hourTracker();
-})
+    if (currentHourInt > inputHourInt) { // Applies grey color if hour is in the future 
+        $("#" + i + "Row").addClass("past");
+    }
+    if (currentHourInt < inputHourInt) { // Applies green color if hour is in the future 
+        $("#" + i + "Row").addClass("future");
+    }
+}
 
+// Function that triggers data to be store in local storage when save button clicked 
+saveBtn.on("click", function () { // On-click 
+
+    var rowHour = $(this).attr("data-hour"); // variable referencing the assigned hour row in the html doc 
+    var input = $("#" + rowHour + "Row").val(); // saves the text that has been entered into the input column 
+    localStorage.setItem(rowHour, input); //saves input to local storage
+});
+
+  //  Function to retrieve the stored input that was saved in each input 
+    function renderPlans() {
+    for (var i = 0; i <= 12; i++) {
+    $("#" + i + "Row").val(localStorage.getItem(i));
+    }
+}
+});
