@@ -1,65 +1,60 @@
+// Variables
+var saveBtn = $(".saveBtn");
+var currentHour = moment().format("HH"); // Variable for current hour 
+var currentHourInt = parseInt(currentHour); // Parse so hours return as integers
 
+// Setting data attributes for each hour input element then the function below can assign color to each for the current hour
+$("#9Row").attr("data-time", moment("9:00 am", "h:mm a").format("HH"));
+$("#10Row").attr("data-time", moment("10:00 am", "hh:mm a").format("HH"));
+$("#11Row").attr("data-time", moment("11:00 am", "hh:mm a").format("HH"));
+$("#12Row").attr("data-time", moment("12:00 pm", "hh:mm a").format("HH"));
+$("#1Row").attr("data-time", moment("1:00 pm", "h:mm a").format("HH"));
+$("#2Row").attr("data-time", moment("2:00 pm", "h:mm a").format("HH"));
+$("#3Row").attr("data-time", moment("3:00 pm", "h:mm a").format("HH"));
+$("#4Row").attr("data-time", moment("4:00 pm", "h:mm a").format("HH"));
+$("#5Row").attr("data-time", moment("5:00 pm", "h:mm a").format("HH"));
 
+//start jQuery 
+$(document).ready(function () {
+    // Function to store inputted data 
+    renderPlans();
+// Show Date and Time in Header 
+$('#currentDay').append();
 
+function addDate() { 
+    $("#currentDay").html(moment().format('MMMM Do YYYY, h:mm a'));
 
-const localeSettings = {};
-dayjs.locale(localeSettings);
+} setInterval(addDate, 1000);
 
-$(function () {
-  // Get the current hour of the day using the dayjs library.
-  const currentHour = dayjs().format('H');
-// The function below changes the color of each time block based on whether it's in the "past, present, or future" relative to the current hour.
-  function hourlyColor() {
-    $('.time-block').each(function() {
-      const blockHour = parseInt(this.id);
-      $(this).toggleClass('past', blockHour < currentHour);
-      $(this).toggleClass('present', blockHour === currentHour);
-      $(this).toggleClass('future', blockHour > currentHour);
-    });
-  }
-// The  function below will save the user's input in a textarea to localStorage - only when the corresponding save button has been clicked.
-  function textEntry() {
-    $('.saveBtn').on('click', function() {
-      const key = $(this).parent().attr('id');
-      const value = $(this).siblings('.description').val();
-      localStorage.setItem(key, value);
-    });
-  }
- // The function below will refresh the color of each time block based on whether it's in the past(grey), present(red), or future(green) relative to the current time. 
-  function refreshColor() {
-    $('.time-block').each(function() {
-      const blockHour = parseInt(this.id);
-      if (blockHour == currentHour) {
-        $(this).removeClass('past future').addClass('present');
-      } else if (blockHour < currentHour) {
-        $(this).removeClass('future present').addClass('past');
-      } else {
-        $(this).removeClass('past present').addClass('future');
-      }
-    });
-  }
-  // This will get the user input from the localStorage and set textarea values for each time block.
-  $('.time-block').each(function() {
-    const key = $(this).attr('id');
-    const value = localStorage.getItem(key);
-    $(this).children('.description').val(value);
-  });
+// Change color in each row by adding in am attribute (above) for each input line to reflect the current hour 
+for (var i = 0; i <= 12; i++) {  
 
-  // Please note: this is my favourtie part of the module - I absolutly love the display of current date and time especially 
-  // since the the time referesed every second - you can find this among the header of the page!
-  function updateTime() {
-    const dateElement = $('#date');
-    const timeElement = $('#time');
-    const currentDate = dayjs().format('dddd, MMMM D, YYYY');
-    const currentTime = dayjs().format('hh:mm:ss A');
-    dateElement.text(currentDate);
-    timeElement.text(currentTime);
-  }
-  // Call the three main functions to set up the page.
-  hourlyColor();
-  textEntry();                
-  refreshColor();
-  // This will update the time once per second for the current time once per second using setInterval() 
-  // giving my beautiful diplay header a live time hours, minues and seconds coutner
-  setInterval(updateTime, 1000);
+    var inputHour = $("#" + i + "Row").attr("data-time"); // Variable for the hour of the row 
+    var inputHourInt = parseInt(inputHour); // Parse it so that hour returns as an integer
+
+    if (currentHourInt === inputHourInt) {
+        $("#" + i + "Row").addClass("present"); // Applies red color if within the present hour 
+    }
+    if (currentHourInt > inputHourInt) { // Applies grey color if hour is in the future 
+        $("#" + i + "Row").addClass("past");
+    }
+    if (currentHourInt < inputHourInt) { // Applies green color if hour is in the future 
+        $("#" + i + "Row").addClass("future");
+    }
+}
+
+// Function that triggers data to be store in local storage when save button clicked 
+saveBtn.on("click", function () { // On-click 
+
+    var rowHour = $(this).attr("data-hour"); // variable referencing the assigned hour row in the html doc 
+    var input = $("#" + rowHour + "Row").val(); // saves the text that has been entered into the input column 
+    localStorage.setItem(rowHour, input); //saves input to local storage
+});
+
+  //  Function to retrieve the stored input that was saved in each input 
+    function renderPlans() {
+    for (var i = 0; i <= 12; i++) {
+    $("#" + i + "Row").val(localStorage.getItem(i));
+    }
+}
 });
