@@ -1,65 +1,46 @@
-$(document).ready(function () {
-    //display current day & time.
-   var span = document.getElementById('currentDay');
+var saveButton = $("button");
+var dayToday = moment().format("dddd, MMMM Do");
+var storedHourInput = JSON.parse(localStorage.getItem("taskPerHour"));
+var containerTimeBlocks = $("#container");
+var hourRows = $(".hour");
 
-   function time() {
-     var d = moment().format('MMMM Do YYYY, h:mm:ss a');
-     span.textContent = d 
-   }
-   setInterval(time, 1000);
+//lists the current day and date in the Jumbotron.
+$("#currentDay").text(dayToday);
 
-    $(".saveBtn").on("click", function () {
-     
-        console.log(this);
-        var text = $(this).siblings(".task").val();
-        var time = $(this).parent().attr("id");
+var currentHour = moment().format("HH");
 
-        localStorage.setItem(time, text);
-        window.alert('Your task has been saved!');
-        console.log('The button has been clicked!');
-    })
-    //We need to load the data from each storage to display it correctly
-    $("#hour7 .task").val(localStorage.getItem("hour7"));
-    $("#hour8 .task").val(localStorage.getItem("hour8"));
-    $("#hour9 .task").val(localStorage.getItem("hour9"));
-    $("#hour10 .task").val(localStorage.getItem("hour10"));
-    $("#hour11 .task").val(localStorage.getItem("hour11"));
-    $("#hour12 .task").val(localStorage.getItem("hour12"));
-    $("#hour13 .task").val(localStorage.getItem("hour13"));
-    $("#hour14 .task").val(localStorage.getItem("hour14"));
-    $("#hour15 .task").val(localStorage.getItem("hour15"));
-    $("#hour16 .task").val(localStorage.getItem("hour16"));
-    $("#hour17 .task").val(localStorage.getItem("hour17"));
-    $("#hour18 .task").val(localStorage.getItem("hour18"));
-    $("#hour19 .task").val(localStorage.getItem("hour19"));
+//this checks the current hour and apples the relevent CSS class to that time block.
+for (var i = 0; i < hourRows.length; i++) {
+	var hourRow = $(hourRows[i]);
+	var hourRowData = hourRow.data("hour");
+	if (currentHour > hourRowData) {
+		hourRow.next().addClass("past");
+	} else if (currentHour < hourRowData) {
+		hourRow.next().addClass("future");
+	} else {
+		hourRow.next().addClass("present");
+	}
+}
 
+if (storedHourInput === null) {
+	storedHourInput = Array(9).fill("");
+}
 
-    // Check which hour it is and Colour code it accordingly
-    function hourTracker() {
-        //Get the current number of hours
-        var currentHour = moment().hour();
+//this loops through each input of the html elements and places in the locally stored values.
+for (var i = 0; i < storedHourInput.length; i++) {
+	containerTimeBlocks
+		.children()
+		.children("input")
+		.eq(i)
+		.val(storedHourInput[i]);
+}
 
-        // loop over time blocks
-        $(".time-block").each(function () {
-            var blockHour = parseInt($(this).attr("id").split("hour")[1]);
-            
-            //check if we've moved past this time
-            if (blockHour < currentHour) {
-                $(this).addClass("past");
-                $(this).removeClass("future");
-                $(this).removeClass("present");
-            }
-            else if (blockHour === currentHour) {
-                $(this).removeClass("past");
-                $(this).addClass("present");
-                $(this).removeClass("future");
-            }
-            else {
-                $(this).removeClass("present");
-                $(this).removeClass("past");
-                $(this).addClass("future");
-            }
-        })
-    }
-    hourTracker();
-})
+//when this button is clicked it saves to local storage by selecting the previous sibling.
+saveButton.on("click", function (event) {
+	var currentTarget = $(event.currentTarget);
+	var calendarHourInput = currentTarget.prev();
+	var buttonIndex = currentTarget.data("buttonindex");
+	storedHourInput[buttonIndex] = calendarHourInput.val();
+	//saves to local storage ->
+	localStorage.setItem("taskPerHour", JSON.stringify(storedHourInput));
+});
